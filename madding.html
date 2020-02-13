@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Madding</title>
+    <style>
+        tr,
+        td,
+        table {
+            background-color: white;
+            border: 3px solid;
+            border-collapse: collapse;
+            padding: 5px 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <center>
+            <h1>Madding</h1><br>
+                Username : <input type="text" id="username" /> <br><br>
+                Password : <input type="password" id="password" /> <br><br>
+                <button onclick="cobaLogin()">Login</button><br>
+            <h2></h2>
+            <table id="table">
+                <thead>
+                    <tr>
+                        <td>No</td>
+                        <td>Kegiatan</td>
+                        <td>Hari</td>
+                        <td>Poster</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody id="body">
+
+                </tbody>
+                <tfoot id="foot">
+
+                </tfoot>
+            </table>
+        <h3></h3>
+        <p></p>
+        
+    </center>
+    <script>
+        class User {
+    constructor(nama, katasandi, role) {
+        this.nama = nama,
+        this.katasandi = katasandi,
+        this.role = role
+    }
+}
+
+class List {
+    constructor(item, hari, gambar) {
+        this.item = item,
+        this.hari = hari,
+        this.gambar = gambar
+    }
+}
+
+var dataUser = [
+    new User('admin', 'admin', 'admin'),
+    new User('user', 'user', 'user')
+]
+
+var listdata = [
+    new List('Lari', 'Senin', ''),
+    new List('Estafet', 'Selasa', '')
+]
+
+var dataUserLogin = {}
+
+const cobaLogin= () => {
+    var user = document.getElementById('username').value
+    var sandi = document.getElementById('password').value
+    var login = false
+    for (var i = 0; i < dataUser.length; i++) {
+        if (user == dataUser[i].nama && sandi == dataUser[i].katasandi) {
+            login = true
+            dataUserLogin = dataUser[i]
+        }
+    }
+
+    if (login) {
+        if (dataUserLogin.role == 'admin') {
+            document.getElementById("body").innerHTML = `
+                    <tbody>
+                    </tbody>`
+            document.getElementById("foot").innerHTML = `
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td><input type="text" class="additem"/></td>
+                            <td>
+                                <select class="additem">
+                                    <option> Senin</option>
+                                    <option> Selasa</option>
+                                    <option> Rabu</option>
+                                    <option> Kamis</option>
+                                    <option> Jumat</option>
+                                </select>
+                            </td>
+                            <td><input type="text" class="additem"></td>
+                            <td><button onclick="onAddItemClick()">add todo</button></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `
+            document.getElementsByTagName("h3")[0].innerHTML = `anda berhasil login sebagai ${dataUserLogin.role}`
+            document.getElementsByTagName("p")[0].innerHTML = `<button onclick="logout()">Logout</button>`
+
+            printData(listdata)
+            
+        } else {
+            document.getElementById("body").innerHTML = `
+                    <tbody>
+                    </tbody>
+                `
+            document.getElementsByTagName("h3")[0].innerHTML = `anda berhasil login sebagai ${dataUserLogin.nama}`
+            document.getElementsByTagName("p")[0].innerHTML = `<button onclick="logout()">Logout</button>`
+
+            printItem(listdata)
+
+        }
+    } else {
+        document.getElementsByTagName('h3')[0].innerHTML = `Password salah bor`
+    }
+}
+
+const printItem = (a) => {
+    var output = ''
+    a.forEach((val, index) => {
+        output += `<tr>
+            <td>${index + 1}</td>
+            <td>${val.item}</td>
+            <td>${val.hari}</td>
+            <td> <img src=${val.gambar} height='100px'/> </td>
+            <td> </td>
+        </tr>`
+
+    });
+    document.getElementsByTagName('tbody')[0].innerHTML = output
+}
+
+var indexedit = -1
+var inddexdel = -2
+const printData = (a) => {
+    var output = ''
+    a.forEach((val, index) => {
+        if (index == indexedit) {
+            output += `<tr>
+                            <td>${index + 1}</td>
+                            <td><input type="text" id="edititem${index}"></td>
+                            <td>
+                                <select id="edithari${index}">
+                                    <option> Senin</option>
+                                    <option> Selasa</option>
+                                    <option> Rabu</option>
+                                    <option> Kamis</option>
+                                    <option> Jumat</option>
+                                </select>    
+                            </td>
+                            <td><input type="text" id="editimg${index}"></td>
+                            <td><button onclick="cancel()">cancel</button><button onclick="save(${index})">save</button></td>
+                        </tr>`
+        } else if (index == inddexdel) {
+            output += `<tr>
+                            <td>${index + 1}</td>
+                            <td>${val.item}</td>
+                            <td>${val.hari}</td>
+                            <td><img src=${val.gambar} height='100px'/></td>
+                            <td><button onclick="cancelDel()">No</button><button onclick="confirmDel(${index})">Yes</button></td>
+                        </tr>`
+        } else {
+            output += `<tr>
+                            <td>${index + 1}</td>
+                            <td>${val.item}</td>
+                            <td>${val.hari}</td>
+                            <td><img src=${val.gambar} height='100px'/></td>
+                            <td><button onclick="hapus(${index})">delete</button><button onclick="edit(${index})">edit</button></td>
+                        </tr>`
+
+        }
+    });
+    document.getElementsByTagName('tbody')[0].innerHTML = output
+}
+
+const hapus = (bebas) => {
+    inddexdel = bebas
+    printData(listdata)
+}
+const cancelDel = () => {
+    inddexdel = -2
+    printData(listdata)
+}
+const confirmDel = (bebas) => {
+    listdata.splice(bebas, 1)
+    inddexdel = -1
+    printData(listdata)
+}
+const edit = (bebas) => {
+    indexedit = bebas
+    printData(listdata)
+}
+
+const cancel = () => {
+    indexedit = -1
+    printData(listdata)
+}
+
+const save = (bebas) => {
+    var newitem = document.getElementById(`edititem${bebas}`).value
+    var newhari = document.getElementById(`edithari${bebas}`).value
+    var newimg = document.getElementById(`editimg${bebas}`).value
+    if (newitem) {
+        listdata[bebas].item = newitem
+    }
+    if (newhari !== listdata[bebas].hari) {
+        listdata[bebas].hari = newhari
+    }
+    if (newimg) {
+        listdata[bebas].gambar = newimg
+    }
+    indexedit = -1
+    printData(listdata)
+}
+
+const onAddItemClick = () => {
+    var input = document.getElementsByClassName('additem')
+    var itembaru = input[0].value
+    var haribaru = input[1].value
+    var imagebaru = input[2].value
+    listdata.push(new List(itembaru, haribaru, imagebaru))
+    printData(listdata)
+}
+
+const logout = () => {
+    var konfirmLogout = true
+    if (konfirmLogout) {
+        document.getElementById("body").innerHTML = ``
+        document.getElementById("foot").innerHTML = ``
+        document.getElementsByTagName("h3")[0].innerHTML = ``
+        document.getElementsByTagName("p")[0].innerHTML = ``
+
+    }
+}
+    </script>
+</body>
